@@ -4,13 +4,7 @@ public class Vendor {
     private Long id;
     private String name;
 
-    public Vendor() {
-    }
-
-    public Vendor(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+    public Vendor() {}
 
     public Long getId() {
         return id;
