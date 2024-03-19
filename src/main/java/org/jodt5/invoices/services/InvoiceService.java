@@ -11,6 +11,7 @@ import org.jodt5.invoices.repositories.VendorRepository;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class InvoiceService implements IService {
     IRepository<Invoice> invoiceRepository;
@@ -29,8 +30,8 @@ public class InvoiceService implements IService {
     }
 
     @Override
-    public Vendor getVendorById(Long id) throws SQLException {
-        return vendorRepository.getById(id);
+    public Optional<Vendor> getVendorById(Long id) throws SQLException {
+        return Optional.ofNullable(vendorRepository.getById(id));
     }
 
     @Override
@@ -49,8 +50,8 @@ public class InvoiceService implements IService {
     }
 
     @Override
-    public Payment getPaymentById(Long id) throws SQLException {
-        return paymentRepository.getById(id);
+    public Optional<Payment> getPaymentById(Long id) throws SQLException {
+        return Optional.ofNullable(paymentRepository.getById(id));
     }
 
     @Override
@@ -69,8 +70,8 @@ public class InvoiceService implements IService {
     }
 
     @Override
-    public Invoice getInvoiceById(Long id) throws SQLException {
-        return invoiceRepository.getById(id);
+    public Optional<Invoice> getInvoiceById(Long id) throws SQLException {
+        return Optional.ofNullable(invoiceRepository.getById(id));
     }
 
     @Override
