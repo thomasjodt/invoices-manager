@@ -1,5 +1,7 @@
 package org.jodt5.invoices.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 
 public class Payment {
@@ -7,14 +9,7 @@ public class Payment {
     private Double amount;
     private LocalDate paymentDate;
 
-    public Payment() {
-    }
-
-    public Payment(Long id, Double amount, LocalDate paymentDate) {
-        this.id = id;
-        this.amount = amount;
-        this.paymentDate = paymentDate;
-    }
+    public Payment() {}
 
     public Long getId() {
         return id;
@@ -32,6 +27,7 @@ public class Payment {
         this.amount = amount;
     }
 
+    @JsonFormat(pattern ="yyyy-MM-dd")
     public LocalDate getPaymentDate() {
         return paymentDate;
     }
