@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VendorRepository implements IRepository<Vendor> {
-    Connection conn;
+    private final Connection conn;
 
     public VendorRepository(Connection conn) {
         this.conn = conn;
@@ -34,7 +34,7 @@ public class VendorRepository implements IRepository<Vendor> {
         Vendor vendor = null;
 
         try (PreparedStatement stmt = conn.prepareStatement(
-            "SELECT * FROM vendor WHERE id=?"
+            "SELECT * FROM vendors WHERE id=?"
         )) {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
