@@ -1,5 +1,7 @@
 package org.jodt5.invoices.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +16,7 @@ public class Invoice {
     private List<Payment> paymentsOnAccount;
 
     public Invoice() {
-        this.paymentsOnAccount = new ArrayList<>();
-    }
-
-    public Invoice(Long id, Vendor vendor, String invoiceNumber, LocalDate emissionDate, LocalDate dueDate, Double amount, List<Payment> paymentsOnAccount) {
-        this.id = id;
-        this.vendor = vendor;
-        this.invoiceNumber = invoiceNumber;
-        this.emissionDate = emissionDate;
-        this.dueDate = dueDate;
-        this.amount = amount;
-        this.paymentsOnAccount = paymentsOnAccount;
+        this.setPaymentsOnAccount(new ArrayList<>());
     }
 
     public Long getId() {
@@ -51,6 +43,7 @@ public class Invoice {
         this.invoiceNumber = invoiceNumber;
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public LocalDate getEmissionDate() {
         return emissionDate;
     }
@@ -59,6 +52,7 @@ public class Invoice {
         this.emissionDate = emissionDate;
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public LocalDate getDueDate() {
         return dueDate;
     }
