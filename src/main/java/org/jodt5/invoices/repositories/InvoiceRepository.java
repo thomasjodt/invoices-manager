@@ -9,7 +9,7 @@ import java.sql.Date;
 import java.util.*;
 
 public class InvoiceRepository implements IRepository<Invoice> {
-    Connection conn;
+    private final Connection conn;
 
     public InvoiceRepository(Connection conn) {
         this.conn = conn;
@@ -33,12 +33,7 @@ public class InvoiceRepository implements IRepository<Invoice> {
                         "LEFT JOIN payments AS p ON (i.id = p.invoice_id) "
             )
             ) {
-            Map<Long, Invoice> invoicesMap = new HashMap<>();
-
-            while (rs.next()) {
-                extracted(rs, invoicesMap);
-            }
-
+            Map<Long, Invoice> invoicesMap = extracted(rs);
             invoices = new ArrayList<>(invoicesMap.values());
         }
         return invoices;
@@ -46,7 +41,7 @@ public class InvoiceRepository implements IRepository<Invoice> {
 
     @Override
     public Invoice getById(Long id) throws SQLException {
-        Invoice invoice = null;
+        Invoice invoice;
 
         try (PreparedStatement stmt = conn.prepareStatement(
             "SELECT " +
@@ -64,15 +59,8 @@ public class InvoiceRepository implements IRepository<Invoice> {
             stmt.setLong(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                Map<Long, Invoice> invoicesMap = new HashMap<>();
-
-                while (rs.next()) {
-                    extracted(rs, invoicesMap);
-
-                    for (Invoice invoice1 : invoicesMap.values()) {
-                        invoice = invoice1;
-                    }
-                }
+                Map<Long, Invoice> invoicesMap = extracted(rs);
+                invoice = new ArrayList<>(invoicesMap.values()).getFirst();
             }
         }
 
@@ -105,34 +93,38 @@ public class InvoiceRepository implements IRepository<Invoice> {
         }
     }
 
-    private static void extracted(ResultSet rs, Map<Long, Invoice> invoicesMap) throws SQLException {
-        Invoice invoiceTemp = new Invoice();
-        invoiceTemp.setId(rs.getLong("id"));
-        invoiceTemp.setInvoiceNumber(rs.getString("invoice_number"));
-        invoiceTemp.setEmissionDate(rs.getDate("emission_date").toLocalDate());
-        invoiceTemp.setDueDate(rs.getDate("due_date").toLocalDate());
-        invoiceTemp.setAmount(rs.getDouble("amount"));
+    private static Map<Long, Invoice> extracted(ResultSet rs) throws SQLException {
+        Map<Long, Invoice> invoicesMap = new HashMap<>();
+        while (rs.next()) {
+            Invoice invoiceTemp = new Invoice();
+            invoiceTemp.setId(rs.getLong("id"));
+            invoiceTemp.setInvoiceNumber(rs.getString("invoice_number"));
+            invoiceTemp.setEmissionDate(rs.getDate("emission_date").toLocalDate());
+            invoiceTemp.setDueDate(rs.getDate("due_date").toLocalDate());
+            invoiceTemp.setAmount(rs.getDouble("amount"));
 
-        Vendor vendor = new Vendor();
-        vendor.setId(rs.getLong("vendor_id"));
-        vendor.setName(rs.getString("vendor"));
-        invoiceTemp.setVendor(vendor);
+            Vendor vendor = new Vendor();
+            vendor.setId(rs.getLong("vendor_id"));
+            vendor.setName(rs.getString("vendor"));
+            invoiceTemp.setVendor(vendor);
 
-        long paymentId = rs.getLong("payment_id");
+            long paymentId = rs.getLong("payment_id");
 
-        if (paymentId > 0) {
-            Payment payment = new Payment();
-            payment.setId(paymentId);
-            payment.setAmount(rs.getDouble("payed_amount"));
-            payment.setPaymentDate(rs.getDate("payment_date").toLocalDate());
+            if (paymentId > 0) {
+                Payment payment = new Payment();
+                payment.setId(paymentId);
+                payment.setAmount(rs.getDouble("payed_amount"));
+                payment.setPaymentDate(rs.getDate("payment_date").toLocalDate());
 
-            if (invoicesMap.containsKey(invoiceTemp.getId())) {
-                invoicesMap.get(invoiceTemp.getId()).getPaymentsOnAccount().add(payment);
-            } else {
-                invoiceTemp.getPaymentsOnAccount().add(payment);
-                invoicesMap.put(invoiceTemp.getId(), invoiceTemp);
+                if (invoicesMap.containsKey(invoiceTemp.getId())) {
+                    invoicesMap.get(invoiceTemp.getId()).getPaymentsOnAccount().add(payment);
+                } else {
+                    invoiceTemp.getPaymentsOnAccount().add(payment);
+                    invoicesMap.put(invoiceTemp.getId(), invoiceTemp);
+                }
             }
         }
+        return invoicesMap;
     }
 
     private static String getSQL(Invoice invoice) {
