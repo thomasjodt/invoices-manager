@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentRepository implements IRepository<Payment> {
-    Connection conn;
+    private final Connection conn;
 
     public PaymentRepository(Connection conn) {
         this.conn = conn;
